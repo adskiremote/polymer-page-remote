@@ -14,7 +14,7 @@ A polymer based pagination and filter with Iron Ajax
         display: block;
       }
     </style>
-    <iron-ajax url="{{dataUrl}}" params='{"type":"all"}' handle-as="json" last-response="{{data}}" on-response="handleResponse"></iron-ajax>
+<!--    <iron-ajax url="{{dataUrl}}" params='{"type":"all"}' handle-as="json" last-response="{{data}}" on-response="handleResponse"></iron-ajax> -->
     <ul id="paginationlist" class="pagination">
             <template is="dom-if" if="{{showFirst}}">
                 <li><a on-tap="firstPage">First</a></li>
@@ -188,13 +188,6 @@ A polymer based pagination and filter with Iron Ajax
                 }
             },
 
-            /**
-             * Handle Iron Ajax response
-             */
-            handleReposne: function() {
-
-            },
-
             pageNum: function(item) {
                 return item + 1;
             },
@@ -299,6 +292,64 @@ A polymer based pagination and filter with Iron Ajax
                     tmpl.id = "itemTemplate";
                     tmpl.innerHTML = this.innerHTML;
                     this.shadowRoot.appendChild(tmpl);
+                }
+            }
+            range: function() {
+                var paginations = [],
+                    i,
+                    pageCount = this.getPageCount();
+
+                if (pageCount - 1 < this.rangeSize + (this.adjacents * 2)) //not enough pages to bother breaking it up
+                {
+                    for (i = 0; i <= pageCount; i++) {
+                        paginations.push(i);
+                    }
+
+                } else if (pageCount - 1 > this.rangeSize + (this.adjacents * 2)) { //enough pages to hide some
+                    //close to beginning; only hide later pages
+                    if (this.currentpage < 1 + (this.adjacents * 2)) {
+                        for (i = 0; i < this.rangeSize; i++) {
+                            paginations.push(i);
+                        }
+                    }
+                    //in middle; hide some front and some back
+                    else if (pageCount - (this.adjacents) > this.currentpage && this.currentpage > (this.adjacents * 2)) {
+                        for (i = this.currentpage - this.adjacents; i <= this.currentpage + this.adjacents; i++) {
+                            paginations.push(i);
+                        }
+                    } else {
+                        //close to end; only hide early pages
+                        for (i = pageCount - ((this.adjacents * 2)); i <= pageCount; i++) {
+                            paginations.push(i);
+                        }
+                    }
+                }
+
+                return paginations;
+            },
+
+            filterPage: function() {
+                return this.data.slice(this.currentpage * this.perpage, (this.currentpage * this.perpage) + this.perpage);
+            },
+
+            toogleActive: function() {
+                var list = this.$.paginationlist.children;
+                this.clearActive(list);
+                this.applyActive(list);
+            },
+
+            clearActive: function(list) {
+                for (var i = 0; i < list.length; i++) {
+                    Polymer.dom(list[i]).classList.remove('active');
+                }
+            },
+
+            applyActive: function(list) {
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i].dataItem === this.currentpage) {
+                        Polymer.dom(list[i]).classList.add('active');
+                        break;
+                    }
                 }
             }
 

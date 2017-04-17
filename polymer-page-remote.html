@@ -79,7 +79,11 @@ A polymer based pagination and filter with Iron Ajax
 
         </style>
 
- <ul id="paginationlist" class="pagination">
+ 
+ 
+ 
+ 
+ <ul id="paginationlist" class="pagination" hidden$="{{_computeHidden(items)}}">
             <template is="dom-if" if="{{showFirst}}">
                 <li><a on-tap="firstPage">First</a></li>
             </template>
@@ -458,6 +462,14 @@ A polymer based pagination and filter with Iron Ajax
                     Polymer.dom(list[i]).classList.add('active');
                     break;
                 }
+            }
+        },
+
+        _computeHidden: function(items) {
+            if (items.length <= this.perpage) {
+                return true;
+            } else {
+                return false;
             }
         }
 

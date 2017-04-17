@@ -466,7 +466,8 @@ A polymer based pagination and filter with Iron Ajax
         },
 
         _computeHidden: function(items) {
-            if (items.length <= this.perpage) {
+            // this.pageCount = this.getPageCount();
+            if (this.pageCount <= 1) {
                 return true;
             } else {
                 return false;
